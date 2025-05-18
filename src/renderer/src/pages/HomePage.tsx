@@ -77,7 +77,7 @@ const HomePage = (): React.JSX.Element => {
                     setKey(e.target.value)
                     setIsInvalid(false)
                   }}
-                  className={`w-full px-5 py-3 rounded-lg border-2 focus:outline-none transition-all ${
+                  className={`w-full px-6 py-3 rounded-lg border-2 focus:outline-none transition-all ${
                     isInvalid
                       ? 'border-red-500 shake-animation'
                       : 'border-gray-200 focus:border-blue-500'
@@ -108,7 +108,7 @@ const HomePage = (): React.JSX.Element => {
               <button
                 type="submit"
                 disabled={!key || status === 'validating'}
-                className={`w-full py-3.5 text-lg font-medium rounded-lg transition-all ${
+                className={`w-full py-2 px-6  cursor-pointer text-lg font-medium rounded-lg transition-all ${
                   status === 'validating'
                     ? 'bg-gray-400 cursor-not-allowed'
                     : 'bg-blue-600 hover:bg-blue-700 text-white'
