@@ -173,9 +173,18 @@ const HomePage = (): React.JSX.Element => {
                     style={{ width: `${downloadProgress}%` }}
                   />
                 </div>
-                <p className="text-gray-600 text-sm">
-                  Downloading LISCAD {downloadProgress}%...
-                  {downloadProgress >= 100 && ' Installation will start automatically'}
+                <p className="text-gray-600 text-center text-sm">
+                  <p>
+                    {downloadProgress < 100 ? (
+                      <>Downloading LISCAD {downloadProgress}%...</>
+                    ) : (
+                      <>LISCAD Downloaded!</>
+                    )}
+                  </p>
+                  <p className="text-rose-500 text-xs">
+                    {downloadProgress >= 100 &&
+                      'Its may taking 2 or 3 working day for  a proper activation. Please wait.'}
+                  </p>
                 </p>
               </div>
             </div>
