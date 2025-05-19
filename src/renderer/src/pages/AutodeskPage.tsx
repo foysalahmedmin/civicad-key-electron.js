@@ -3,8 +3,8 @@ import icon from '../assets/icon-autodesk-civil.png'
 
 const DEFAULT_LICENSE_KEY = {
   service: 'annual',
-  product: '237O1-WW3740-L562',
-  key: '237O1-WW3740-L562-VC'
+  product: '237O1-WW3740-L562-VC',
+  key: '64453200100'
 }
 
 const AutodeskPage = (): React.JSX.Element => {
