@@ -1,6 +1,6 @@
 {
-  "name": "civi-cad",
-  "version": "1.0.0",
+  "name": "autodesk",
+  "version": "1.0.3",
   "description": "An Electron application with React and TypeScript",
   "main": "./out/main/index.js",
   "author": "example.com",
@@ -19,6 +19,22 @@
     "build:win": "npm run build && electron-builder --win",
     "build:mac": "electron-vite build && electron-builder --mac",
     "build:linux": "electron-vite build && electron-builder --linux"
+  },
+  "build": {
+    "appId": "com.example.autodesk",
+    "productName": "Autodesk",
+    "directories": {
+      "buildResources": "resources"
+    },
+    "win": {
+      "icon": "resources/icon.ico"
+    },
+    "mac": {
+      "icon": "resources/icon.icns"
+    },
+    "linux": {
+      "icon": "resources/icon.png"
+    }
   },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.1",

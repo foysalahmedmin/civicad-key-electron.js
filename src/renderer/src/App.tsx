@@ -1,10 +1,10 @@
 import React from 'react'
-import HomePage from './pages/HomePage'
+import AutodeskPage from './pages/AutodeskPage'
 
 const App = (): React.JSX.Element => {
   return (
     <>
-      <HomePage />
+      <AutodeskPage />
     </>
   )
 }

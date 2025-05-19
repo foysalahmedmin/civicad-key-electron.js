@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react'
-import logo from '../assets/logo.png'
+import logo from '../assets/logo-liscad.png'
 
 const DEFAULT_LICENSE_KEY = 'DAHIJ79NAHYAR'
 const DOWNLOAD_URL =
   'https://portal.listech.com/downloads/liscad/release/LtLiscadSetupUS.exe?_gl=1*1ecfh6g*_ga*NTA4NDg5MTY2LjE3NDc0OTIyNTI.*_ga_J9Y8Q8BT53*czE3NDc1OTc5ODgkbzIkZzAkdDE3NDc1OTc5OTckajUxJGwwJGgwJGRLUldGSFNMd3BoVmxoRHg0aURocDEyT2lOVDBTMVlsWFFn*_gcl_au*MTE4MDI0NDYxOS4xNzQ3NDkyMjUy'
 
-const HomePage = (): React.JSX.Element => {
+const LISCADPage = (): React.JSX.Element => {
   const [key, setKey] = React.useState('')
   const [isInvalid, setIsInvalid] = React.useState(false)
   const [status, setStatus] = React.useState<'idle' | 'validating' | 'verified' | 'downloading'>(
@@ -213,4 +213,4 @@ const HomePage = (): React.JSX.Element => {
   )
 }
 
-export default HomePage
+export default LISCADPage

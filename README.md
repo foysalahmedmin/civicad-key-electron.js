@@ -4,7 +4,7 @@ sudo apt update
 sudo apt install wine64 wine32
 -->
 
-# civi-cad
+# autodesk
 
 An Electron application with React and TypeScript
 
