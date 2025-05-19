@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import icon from '../assets/icon.png'
+import icon from '../assets/icon-autodesk-civil.png'
 
 const DEFAULT_LICENSE_KEY = {
   service: 'annual',
