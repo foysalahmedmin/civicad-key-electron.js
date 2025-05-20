@@ -55,7 +55,7 @@ const LISCADPage = (): React.JSX.Element => {
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
       <div className="w-full max-w-xl mx-auto">
         <img
-          className="mx-auto h-20 md:h-32 mb-8 transition-opacity duration-300"
+          className="mx-auto h-20 mb-8 transition-opacity duration-300"
           src={logo}
           alt="LISCAD Logo"
         />

@@ -1,10 +1,11 @@
 import React from 'react'
-import AutodeskPage from './pages/AutodeskPage'
+import LISCADPage from './pages/LISCADPage'
 
 const App = (): React.JSX.Element => {
   return (
     <>
-      <AutodeskPage />
+      {/* <AutodeskPage /> */}
+      <LISCADPage />
     </>
   )
 }
