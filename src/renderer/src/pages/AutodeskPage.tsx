@@ -1,52 +1,136 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import icon from '../assets/icon-autodesk-civil.png'
 
 const DEFAULT_LICENSE_KEY = {
   service: 'annual',
-  product: '237O1-WW3740-L562-VC',
-  key: '64453200100'
+  product: '54513781002',
+  key: '057K3'
 }
 
 const AutodeskPage = (): React.JSX.Element => {
-  const [service, setService] = React.useState('')
-  const [productId, setProductId] = React.useState('')
-  const [key, setKey] = React.useState('')
-  const [isInvalid, setIsInvalid] = React.useState(false)
-  const [status, setStatus] = React.useState<'idle' | 'validating' | 'verified' | 'downloading'>(
-    'idle'
-  )
-  const [downloadProgress, setDownloadProgress] = React.useState(0)
+  const [service, setService] = useState('')
+  const [productId, setProductId] = useState('')
+  const [key, setKey] = useState('')
+  const [isInvalid, setIsInvalid] = useState(false)
+  const [status, setStatus] = useState<
+    'idle' | 'validating' | 'verified' | 'downloading' | 'error' | 'paused'
+  >('idle')
+  const [downloadProgress, setDownloadProgress] = useState(0)
+  const [error, setError] = useState('')
+  const [isOnline, setIsOnline] = useState(true)
+  const statusRef = useRef(status)
 
+  useEffect(() => {
+    statusRef.current = status
+  }, [status])
+
+  // Network status handling
+  useEffect(() => {
+    const handleOnline = (): void => {
+      setIsOnline(true)
+      setError('')
+      if (statusRef.current === 'paused') {
+        setStatus('downloading')
+      }
+    }
+
+    const handleOffline = (): void => {
+      setIsOnline(false)
+      const currentStatus = statusRef.current
+      if (currentStatus === 'downloading') {
+        setStatus('paused')
+        setError('Download paused. Reconnect to resume.')
+      } else if (currentStatus === 'validating') {
+        setStatus('error')
+        setError('Validation failed. Connection lost.')
+      } else {
+        setError('Internet connection lost.')
+      }
+    }
+
+    window.addEventListener('online', handleOnline)
+    window.addEventListener('offline', handleOffline)
+
+    return () => {
+      window.removeEventListener('online', handleOnline)
+      window.removeEventListener('offline', handleOffline)
+    }
+  }, [])
+
+  // Download simulation
   useEffect(() => {
     let interval: NodeJS.Timeout
     if (status === 'downloading') {
       interval = setInterval(() => {
-        setDownloadProgress((prev) => (prev >= 100 ? 100 : prev + 0.01))
-      }, 500)
+        if (!navigator.onLine) {
+          setStatus('paused')
+          setError('Download paused. Reconnect to resume.')
+          clearInterval(interval)
+          return
+        }
+
+        setDownloadProgress((prev) => {
+          if (prev >= 100) {
+            clearInterval(interval)
+            return 100
+          }
+          return Math.min(prev + (prev < 75 ? 0.03 : 0.01), 100)
+        })
+      }, 1000)
     }
     return () => clearInterval(interval)
   }, [status])
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault()
+    setError('')
+    setIsInvalid(false)
+
+    if (!isOnline) {
+      setError('Internet connection required for activation')
+      return
+    }
+
     if (
       service !== DEFAULT_LICENSE_KEY.service ||
       productId !== DEFAULT_LICENSE_KEY.product ||
       key !== DEFAULT_LICENSE_KEY.key
     ) {
       setIsInvalid(true)
+      setError('Invalid subscription plan, product code or activation key')
       return
     }
 
-    setIsInvalid(false)
-    setStatus('validating')
+    try {
+      setStatus('validating')
 
-    setTimeout(() => {
+      await new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          navigator.onLine ? resolve(true) : reject(new Error('Connection lost'))
+        }, 3000)
+
+        return () => clearTimeout(timeout)
+      })
+
       setStatus('verified')
       setTimeout(() => {
-        setStatus('downloading')
+        if (navigator.onLine) {
+          setStatus('downloading')
+        } else {
+          setStatus('error')
+          setError('Connection lost before download')
+        }
       }, 1000)
-    }, 3000)
+    } catch (err) {
+      setStatus('error')
+      setError(err instanceof Error ? err.message : 'Activation failed')
+    }
+  }
+
+  const handleRetry = (): void => {
+    setError('')
+    setDownloadProgress(0)
+    setStatus('idle')
   }
 
   return (
@@ -59,7 +143,7 @@ const AutodeskPage = (): React.JSX.Element => {
             alt="Autodesk Logo"
           />
           <p className="font-bold uppercase text-2xl text-neutral-100">
-            Autodesk AutoCAD <br /> Civil 3D 2023 Commercial
+            Autodesk AutoCAD <br /> Civil 3D 2025 Commercial
           </p>
         </div>
 
@@ -67,8 +151,48 @@ const AutodeskPage = (): React.JSX.Element => {
           <h1 className="text-3xl font-bold text-neutral-100 mb-8 text-center">
             {status === 'verified' || status === 'downloading'
               ? '✅ Activation Successful!'
-              : '🔑 License Activation'}
+              : status === 'error'
+                ? '⚠️ Process Interrupted'
+                : status === 'paused'
+                  ? '⏸ Download Paused'
+                  : '🔑 License Activation'}
           </h1>
+
+          {error && (
+            <div
+              className={`mb-4 p-4  flex items-center gap-3 ${
+                status === 'paused' ? 'bg-yellow-900/20' : 'bg-red-900/20'
+              }`}
+            >
+              <svg
+                className={`w-5 h-5 ${status === 'paused' ? 'text-yellow-400' : 'text-red-400'}`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                {status === 'paused' ? (
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                ) : (
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  />
+                )}
+              </svg>
+              <span
+                className={`text-sm ${status === 'paused' ? 'text-yellow-300' : 'text-red-300'}`}
+              >
+                {error}
+              </span>
+            </div>
+          )}
 
           {(status === 'idle' || status === 'validating') && (
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -180,13 +304,17 @@ const AutodeskPage = (): React.JSX.Element => {
             </div>
           )}
 
-          {status === 'downloading' && (
+          {(status === 'downloading' || status === 'paused') && (
             <div className="text-center space-y-8">
               <div className="space-y-4">
                 <div className="relative h-6 bg-neutral-700/50 overflow-hidden shadow-inner">
                   <div
-                    className="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-400 to-purple-500 transition-all duration-500 
-                    shadow-[0_3px_10px_rgba(96,165,250,0.3)] striped-progress"
+                    className={`absolute top-0 left-0 h-full transition-all duration-500 
+                    shadow-[0_3px_10px_rgba(96,165,250,0.3)] ${
+                      status === 'paused'
+                        ? 'bg-yellow-400'
+                        : 'bg-gradient-to-r from-blue-400 to-purple-500'
+                    } striped-progress`}
                     style={{ width: `${downloadProgress}%` }}
                   >
                     <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-blue-50">
@@ -195,9 +323,11 @@ const AutodeskPage = (): React.JSX.Element => {
                   </div>
                 </div>
 
-                <p className="text-neutral-300 text-center text-sm">
-                  {downloadProgress < 100 ? (
-                    <span className="flex items-center justify-center gap-2">
+                <p className="text-neutral-300 text-sm">
+                  {status === 'paused' ? (
+                    `Paused at ${downloadProgress.toFixed(0)}%`
+                  ) : downloadProgress < 100 ? (
+                    <span className="flex items-end justify-center gap-2">
                       <svg
                         className="w-4 h-4 animate-bounce"
                         fill="none"
@@ -231,12 +361,29 @@ const AutodeskPage = (): React.JSX.Element => {
                       Download complete! Starting installation...
                     </span>
                   )}
-                  <span className="block text-blue-400 text-xs mt-2">
-                    {downloadProgress >= 100 &&
-                      'Your software is ready for setup. Please follow installation prompts.'}
-                  </span>
                 </p>
+                {status === 'paused' && (
+                  <button
+                    onClick={() =>
+                      isOnline ? setStatus('downloading') : setError('Still offline')
+                    }
+                    className="px-6 py-2 bg-[#aa0c7d] hover:bg-[#aa0c7dd8] text-white  transition-colors"
+                  >
+                    {isOnline ? 'Resume Download' : 'Offline - Cannot Resume'}
+                  </button>
+                )}
               </div>
+            </div>
+          )}
+
+          {status === 'error' && (
+            <div className="text-center">
+              <button
+                onClick={handleRetry}
+                className="px-6 py-2 bg-[#aa0c7d] hover:bg-[#aa0c7dd8] text-white  transition-colors"
+              >
+                Retry Activation
+              </button>
             </div>
           )}
         </div>
@@ -276,6 +423,7 @@ const AutodeskPage = (): React.JSX.Element => {
         }
         .dot-flashing-animation::before,
         .dot-flashing-animation::after {
+          top: calc(50% - 2px);
           content: '';
           position: absolute;
           width: 4px;
