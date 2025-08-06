@@ -143,11 +143,7 @@ const AutodeskPage = (): React.JSX.Element => {
             alt="Autodesk Logo"
           />
           <p className="font-bold uppercase text-2xl text-neutral-100">
-<<<<<<< HEAD
             Autodesk AutoCAD <br /> Civil 3D 2025 Commercial
-=======
-            Autodesk AutoCAD <br /> Civil 3D 2022 Commercial
->>>>>>> 3ec3e2345b386906966dfd24ff87e70065aeb602
           </p>
         </div>
 
