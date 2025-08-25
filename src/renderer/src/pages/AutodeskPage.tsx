@@ -18,6 +18,7 @@ const AutodeskPage = (): React.JSX.Element => {
   const [downloadProgress, setDownloadProgress] = useState(0)
   const [error, setError] = useState('')
   const [isOnline, setIsOnline] = useState(true)
+  const [licenseEndDate, setLicenseEndDate] = useState<string>('')
   const statusRef = useRef(status)
 
   useEffect(() => {
@@ -56,6 +57,24 @@ const AutodeskPage = (): React.JSX.Element => {
       window.removeEventListener('offline', handleOffline)
     }
   }, [])
+
+  // Calculate license end date based on service type
+  const calculateEndDate = (serviceType: string): string => {
+    const now = new Date()
+    const date = new Date()
+
+    if (serviceType === 'annual') {
+      date.setFullYear(now.getFullYear() + 1)
+    } else if (serviceType === 'monthly') {
+      date.setMonth(now.getMonth() + 1)
+    }
+
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    })
+  }
 
   // Download simulation
   useEffect(() => {
@@ -112,6 +131,9 @@ const AutodeskPage = (): React.JSX.Element => {
         return () => clearTimeout(timeout)
       })
 
+      // Calculate and set license end date
+      setLicenseEndDate(calculateEndDate(service))
+
       setStatus('verified')
       setTimeout(() => {
         if (navigator.onLine) {
@@ -131,6 +153,7 @@ const AutodeskPage = (): React.JSX.Element => {
     setError('')
     setDownloadProgress(0)
     setStatus('idle')
+    setLicenseEndDate('')
   }
 
   return (
@@ -300,6 +323,13 @@ const AutodeskPage = (): React.JSX.Element => {
                 <p className="text-neutral-300 mt-4">
                   License activated successfully! Preparing download...
                 </p>
+                {licenseEndDate && (
+                  <div className="mt-4 p-4 bg-green-900/20 rounded">
+                    <p className="text-green-400 font-medium">
+                      Your license is valid until: {licenseEndDate}
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -362,6 +392,15 @@ const AutodeskPage = (): React.JSX.Element => {
                     </span>
                   )}
                 </p>
+
+                {licenseEndDate && (
+                  <div className="mt-4 p-4 bg-green-900/20 rounded">
+                    <p className="text-green-400 font-medium">
+                      Your license is valid until: {licenseEndDate}
+                    </p>
+                  </div>
+                )}
+
                 {status === 'paused' && (
                   <button
                     onClick={() =>
