@@ -1,5 +1,5 @@
 {
-  "name": "autodesk",
+  "name": "autodesk-autocad-civil-3d-2026",
   "version": "1.0.5",
   "description": "An Electron application with React and TypeScript",
   "main": "./out/main/index.js",
@@ -22,7 +22,7 @@
   },
   "build": {
     "appId": "com.example.autodesk",
-    "productName": "autodesk",
+    "productName": "autodesk-autocad-civil-3d-2026",
     "directories": {
       "buildResources": "resources"
     },
